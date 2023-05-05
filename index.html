@@ -176,7 +176,7 @@ src: url("./fonts/Avenir_Book.ttf");
 
 
 
-    <title>The Low-Rank Simplicity Bias in Deep Networks</title>
+    <title>VQ-STE++</title>
 </head>
 
 <body>
@@ -250,7 +250,7 @@ src: url("./fonts/Avenir_Book.ttf");
                     <center>
                         <br>
                         <span style="font-size:20px">
-                            <a href="https://github.com/minyoungg/overparam">code</a>
+                            <a href=..>code (coming soon)</a>
                         </span>
                     </center>
                 </td>
@@ -307,9 +307,58 @@ src: url("./fonts/Avenir_Book.ttf");
     </center>
     <br/>
 
-    <p><img class="rounded" src="./assets/drift.png" width="800px"></p>
+    <p>
+      We observe that a primary cause of training instability is attributed to a shift in the embedding distribution.
+      As the embedding distribution P shifts, it misaligns with the codebook distribution C. The <b>misalignment occurs due to the sparse, delayed, and inaccurate straight-through-estimation</b> used to update the codebook.
+      The set of assigned code-vectors Q continuously shrinks as models are trained for longer, this phenomena is referred to as "index-collapse".
+    </p>
+    <br />
+    <p><center>
+      <img class="rounded" src="./assets/drift.png" width="500px">
+    </center></p>
+
+    <br />
+    <p>
+      To reduce this divergence, we propose an <b>affine re-parameterization</b> of the code-vectors that can better match the moments of the embedding representation.
+      An affine re-parameterization with shared parameters ensures that the code-vectors that do not have an assignment still receives gradients.
+      The affine parameters can either be learned or computed using running statistics. This can be easily extended beyond single affine parameter to a group.
+    </p>
+    <br />
+    <p><center><img src="./assets/svg.svg" width="200px"></center></p>
+    <br />
+    <p>
+      We can directly observe the effect of affine re-parameterization by visualizing the P, C, and Q using a low-dimensional projection.
+    </p>
+    <br />
     <p><img class="rounded" src="./assets/divergence.png" width="800px"></p>
+    <br />
+
+    <p>
+      The inaccuracy of the straight-through-estimator is proportional to the error in the commitment loss -- the divergence between P and Q.
+      In order to reduce the inaccurate estimation, we use coordinate descent style optimization approach which we first reduce the commitment loss before minimizing the task loss (alternated optimization).
+    </p>
+    <p>
+      Not only is the straight-through-estimation inaccuracte we find that the representation of the codebook is always delayed by a single iteration, resulting in slow down in convergence.
+      We remove the delay in the codebook representation by further updating the codebook towards the direction that minimizes task loss (synchronized commitment loss).
+    </p>
+    <p>
+      On a toy example below, we show how these changes affect the optimization trajectory.
+    </p>
+    <br />
     <p><img class="rounded" src="./assets/opt_vis.png" width="800px"></p>
+
+    <br />
+    <p>
+      Combining our proposed methods, we above a consistent improvement in VQ-based generative modeling.
+      The figure below is generated using MaskGIT* framework for CelebA. OPT refers to both alternating optimization + synchronized commitment loss.
+      Refer to the main paper for additional results including image classification.
+    </p>
+    <br />
+
+    <p><center><img class="rounded" src="./assets/maskgit_fid.png" width="300px"><img class="rounded" src="./assets/maskgit_rfid.png" width="300px" /></center></p>
+    <p>
+      (*Note: MaskGIT was trained without perceptual and discriminative loss to reduce training and memory overhead.)
+    </p>
 
     <br>
     <hr>
@@ -324,7 +373,7 @@ src: url("./fonts/Avenir_Book.ttf");
       </code></pre>
 
     Integrate to your existing PyTorch code base
-    <pre><code> 
+    <pre><code>
         <font color="ef476f">from</font> vqtorch.nn <font color="ef476f">import</font> VectorQuant
 
         <font color=7F8C8D># create VQ layer </font>
@@ -340,15 +389,15 @@ src: url("./fonts/Avenir_Book.ttf");
                         <font color=#F39C12>lru</font>=20,             <font color=7F8C8D># (default: 0) frequency to replace dead codes</font>
                         <font color=#F39C12>dim</font>=-1              <font color=7F8C8D># (default: -1) dimension to be quantized</font>
                         )
-            
+
         <font color=7F8C8D># when using `kmeans_init`, we can warmup the codebook </font>
         <font color="AF7AC5">with</font> torch.no_grad():
             z_e = torch.randn(1, 32, 32, 3)
             vq_layer(z_e)
-            
+
         <font color=7F8C8D># standard forward pass </font>
         z_q, vq_dict = vq_layer(z_e) # equivalent to above
-    
+
         <font color=2E86C1>print</font>(z_q.shape)
         <font color="00509d">>>></font> (1, 64, 64, 32)
 
