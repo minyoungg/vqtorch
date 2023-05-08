@@ -374,6 +374,7 @@ src: url("./fonts/Avenir_Book.ttf");
 
     Integrate to your existing PyTorch code base
     <pre><code>
+        <font color="ef476f">import</font> torch
         <font color="ef476f">from</font> vqtorch.nn <font color="ef476f">import</font> VectorQuant
 
         <font color=7F8C8D># create VQ layer </font>
@@ -386,13 +387,13 @@ src: url("./fonts/Avenir_Book.ttf");
                         <font color=#F39C12>cb_norm</font>=None,       <font color=7F8C8D># (default: None) normalization for codebook vectors</font>
                         <font color=#F39C12>affine_scale</font>=10.0,  <font color=7F8C8D># (default: 0.0) lr scale for affine parameters</font>
                         <font color=#F39C12>sync_nu</font>=0.2,        <font color=7F8C8D># (default: 0.0) codebook syncronization contribution</font>
-                        <font color=#F39C12>lru</font>=20,             <font color=7F8C8D># (default: 0) frequency to replace dead codes</font>
+                        <font color=#F39C12>replace_freq</font>=20,    <font color=7F8C8D># (default: 0) frequency to replace dead codes</font>
                         <font color=#F39C12>dim</font>=-1              <font color=7F8C8D># (default: -1) dimension to be quantized</font>
-                        )
+                        ).cuda()
 
-        <font color=7F8C8D># when using `kmeans_init`, we can warmup the codebook </font>
+        <font color=7F8C8D># when using `kmeans_init`, a warmup is recommended </font>
         <font color="AF7AC5">with</font> torch.no_grad():
-            z_e = torch.randn(1, 32, 32, 3)
+            z_e = torch.randn(1, 32, 32, 3).cuda()
             vq_layer(z_e)
 
         <font color=7F8C8D># standard forward pass </font>
@@ -409,7 +410,7 @@ src: url("./fonts/Avenir_Book.ttf");
     <center>
         <h2> Acknowledgements </h2>
     </center>
-    <p> Minyoung Huh would like to thank lab member from Chai family for mental support.
+    <p> Minyoung Huh would like to thank his lab members for helpful feedbacks. 
         <!-- Brian Cheung is funded by an MIT BCS Fellowship. -->
         <br><br>
 
