@@ -1,7 +1,0 @@
-@inproceedings{huh2023improvedvqste,
-  title={Straightening Out the Straight-Through Estimator: Overcoming Optimization Challenges in Vector Quantized Networks},
-  author={Huh, Jacob and Cheung, Brian and Agrawal, Pulkit and Isola, Phillip},
-  booktitle={International Conference on Machine Learning},
-  year={2023},
-  organization={PMLR}
-}
