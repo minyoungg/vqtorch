@@ -38,20 +38,18 @@ class GroupVectorQuant(VectorQuant):
 			**kwargs,
 			):
 
-		super().__init__(feature_size, num_codes, **kwargs)
-
-		if not share and not self.feature_size % groups == 0:
+		if not share and not feature_size % groups == 0:
 			e_msg = f'feature_size {self.feature_size} must be divisible by groups {groups}.'
 			raise RuntimeError(str(cs(e_msg, 'red')))
 
+		num_codebooks = 1 if share else groups
+		in_dim  = self.group_size = num_codes // num_codebooks
+		out_dim = feature_size // groups
+
+		super().__init__(feature_size, num_codes, code_vector_size=out_dim, **kwargs)
+
 		self.groups = groups
 		self.share = share
-
-		num_codebooks = 1 if share else groups
-		in_dim  = self.num_codes // num_codebooks
-		out_dim = self.feature_size // groups
-
-		self.group_size = in_dim
 		self.codebook = nn.Embedding(in_dim * num_codebooks, out_dim)
 		return
 	

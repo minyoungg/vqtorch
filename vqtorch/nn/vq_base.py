@@ -56,10 +56,12 @@ class _VQBaseLayer(nn.Module):
 			norm='none',
 			cb_norm='none',
 			kmeans_init=False,
+			code_vector_size=None,
 			):
 
 		super().__init__()
 		self.feature_size = feature_size
+		self.code_vector_size = feature_size if code_vector_size is None else code_vector_size
 		self.num_codes = num_codes
 		self.dim = dim
 

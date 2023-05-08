@@ -56,7 +56,7 @@ class VectorQuant(_VQBaseLayer):
 		if affine_lr > 0:
 			# defaults to using learnable affine parameters
 			self.affine_transform = AffineTransform(
-										self.feature_size,
+										self.code_vector_size,
 										use_running_statistics=False,
 										affine_lr_scale=affine_lr,
 										)
