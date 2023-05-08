@@ -11,30 +11,18 @@ class GroupVectorQuant(VectorQuant):
 	Vector quantization layer.
 
 	Args:
-		groups (int):
-			Number of groups for vector quantization. The vectors are divided
-			into group chunks. When groups=1, it is the same as STVectorQuant.
-			[default: 1]
-		share (bool):
-			If True, codebook is shared for each sub-vector.
-			[default: True]
-		*rest*: see STVectorQuant()
-
-	Input:
-		z (Tensor): tensor of atleast 3 dimensions
-
-	Returns:
-		z_q (Tensor): quantized tensor with the same shape as z
-		q (Tensor): the code used in quantization.
-		loss (Torch scalar): commitment loss
+		groups (int): Number of groups for vector quantization. The vectors are divided
+			into group chunks. When groups=1, it is the same as VectorQuant.
+		share (bool): If True, codebook is shared for each sub-vector.
+		*rest*: see VectorQuant()
 	"""
 
 	def __init__(
 			self,
-			feature_size,
-			num_codes,
-			groups=1,
-			share=True,
+			feature_size : int,
+			num_codes : int,
+			groups : int = 1,
+			share : bool = True,
 			**kwargs,
 			):
 

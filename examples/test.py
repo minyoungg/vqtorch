@@ -2,6 +2,7 @@ import torch
 from vqtorch.nn import VectorQuant, GroupVectorQuant, ResidualVectorQuant
 
 
+print('Testing VectorQuant')
 # create VQ layer
 vq_layer = VectorQuant(
                 feature_size=32,     # feature dimension corresponding to the vectors
@@ -30,6 +31,7 @@ print(f'>>> quantization error: {err:.3f}')
 
 
 
+print('Testing GroupVectorQuant')
 # create VQ layer
 vq_layer = GroupVectorQuant(
                 feature_size=32,     
@@ -61,7 +63,7 @@ print(f'>>> quantization error: {err:.3f}')
 
 
 
-
+print('Testing ResidualVectorQuant')
 # create VQ layer
 vq_layer = ResidualVectorQuant(
                 feature_size=32,     

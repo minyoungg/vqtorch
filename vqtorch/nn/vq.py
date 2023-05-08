@@ -11,34 +11,34 @@ from .affine import AffineTransform
 
 class VectorQuant(_VQBaseLayer):
 	"""
-	Vector quantization layer trained via straight-through approximation.
+	Vector quantization layer using straight-through estimation.
 
 	Args:
-		affine (bool):
-			Uses affine parameteres for training.
-		accelerated_codebook_update(bool):
-			Accelerated update rule for codebook. The gradient flows through
-			the codebook.
-		beta (float):
-			Learning rate scale for the commitment loss
-		*rest*: see VQBaseLayer()
-	Input:
-		z (Tensor): tensor of atleast 3 dimensions
-
+		feature_size (int): feature dimension corresponding to the vectors
+		num_codes (int): number of vectors in the codebook
+		beta (float): commitment loss weighting
+		sync_nu (float): sync loss weighting
+		affine_lr (float): learning rate for affine transform
+		affine_groups (int): number of affine parameter groups
+		replace_freq (int): frequency to replace dead codes
+		inplace_optimizer (Optimizer): optimizer for inplace codebook updates
+		**kwargs: additional arguments for _VQBaseLayer
+	
 	Returns:
-		z_q (Tensor): quantized tensor with the same shape as z
-		misc (dict): dictionary of computation
+		Quantized vector z_q and return dict
 	"""
 
 
 	def __init__(
 			self,
-			feature_size,
-			num_codes,
-			beta=0.95,
-			sync_nu=0.0,
-			affine_lr=0.0,
-			replace_freq=0,
+			feature_size : int,
+			num_codes : int,
+			beta : float = 0.95,
+			sync_nu : float = 0.0,
+			affine_lr:	float = 0.0,
+			affine_groups: int = 1,
+			replace_freq: int = 0,
+			inplace_optimizer: torch.optim.Optimizer = None,
 			**kwargs,
 			):
 
@@ -53,12 +53,18 @@ class VectorQuant(_VQBaseLayer):
 		self.affine_lr = affine_lr
 		self.codebook = nn.Embedding(self.num_codes, self.feature_size)
 
+		if inplace_optimizer is not None:
+			if beta != 1.0:
+				raise ValueError('inplace_optimizer can only be used with beta=1.0')
+			self.inplace_codebook_optimizer = inplace_optimizer(self.codebook.parameters())			
+
 		if affine_lr > 0:
 			# defaults to using learnable affine parameters
 			self.affine_transform = AffineTransform(
 										self.code_vector_size,
 										use_running_statistics=False,
-										affine_lr_scale=affine_lr,
+										lr_scale=affine_lr,
+										num_groups=affine_groups,
 										)
 		if replace_freq > 0:
 			vqtorch.nn.utils.lru_replacement(self, rho=0.01, timeout=replace_freq)
@@ -110,6 +116,18 @@ class VectorQuant(_VQBaseLayer):
 			q = dist_out['q'].view(z_shape).long()
 
 		z_q = F.embedding(q, codebook)
+
+		if self.training and hasattr(self, 'inplace_codebook_optimizer'):
+			# update codebook inplace 
+			((z_q - z.detach()) ** 2).mean().backward()
+			self.inplace_codebook_optimizer.step()
+			self.inplace_codebook_optimizer.zero_grad()
+
+			# forward pass again with the update codebook
+			z_q = F.embedding(q, codebook)
+
+			# NOTE to save compute, we assumed Q did not change.
+
 		return z_q, d, q
 
 	@torch.no_grad()
@@ -158,4 +176,5 @@ class VectorQuant(_VQBaseLayer):
 
 		z_q = self.straight_through_approximation(z, z_q)
 		z_q = self.to_original_format(z_q)
+
 		return z_q, to_return

@@ -70,11 +70,7 @@ def euclidean_cdist_topk(tensor, codebook, compute_chunk_size=1024, topk=1,
 	Args:
 		tensor (Tensor): a 3D tensor of shape [batch x HWG x feats].
 		codebook (Tensor): a 2D tensor of shape [num_codes x feats].
-		mask (None or Tensor): a 2D  tensor of shape [batch x feats].
-			If `None`, no masking is applied. Mask is a binary float tensor
-			where `1` is to consider distance. `0` means ignore.
-		chunks (int): number of chunks to break the matrix-multiplication by.
-			compute chunks. divide the matrix into n chunks.
+		compute_chunk_size (int): the chunk size to use when computing cdist.
 		topk (int): stores `topk` distance minimizers. If -1, topk is the
 			same length as the codebook
 		half_precision (bool): if True, matrix multiplication is computed

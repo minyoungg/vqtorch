@@ -17,32 +17,20 @@ class _VQBaseLayer(nn.Module):
 			code vector. the dimensions must match the input feature size.
 		num_codes (int):
 			Number of codes to use in the codebook.
-		dim (int):
-			Dimension to quantize. by default quantization happens on
+		dim (int): Dimension to quantize. by default quantization happens on
 			the channel dimension. For example, given an image tensor
-			(B x C x H x W), the channels are treated as features and the
-			resulting codes `q` has the shape (B x H x W). For multi-headed
-			attentions where (B x head x F), you should set dim=2.
-			[default: 1]
-		norm (str):
-			Feature normalization.
-			[default: none]
-		codebook_norm (str):
-			Codebook normalization.
-
-	Input:
-		z (Tensor): tensor of atleast 3 dimensions
+			(B x C x H x W) and dim=1, the channels are treated as features 
+			and the resulting codes `q` has the shape (B x H x W). 
+			For transformers (B x N x C), you should set dim=2 or -1.
+		norm (str): Feature normalization.
+		codebook_norm (str): Codebook normalization.
 
 	Returns:
-		z_q (Tensor): quantized tensor with the same shape as z
-		misc (dict): dictionary of computation
+		Quantized vector z_q and return dict
 
 	Attributes:
-		_compute_chunks (int):
-			Uses divide-and-reduce to compute topk comparisons.
-			[default: 16]
-		enabled (bool):
-			If false, the model is not quantized and acts as an identity layer.
+		cdist_chunk_size (int): chunk size for divide-and-conquer topk cdist.
+		enabled (bool): If false, the model is not quantized and acts as an identity layer.
 	"""
 
 	cdist_chunk_size = 1024
@@ -50,13 +38,13 @@ class _VQBaseLayer(nn.Module):
 
 	def __init__(
 			self,
-			feature_size,
-			num_codes,
-			dim=1,
-			norm='none',
-			cb_norm='none',
-			kmeans_init=False,
-			code_vector_size=None,
+			feature_size : int,
+			num_codes :	int,
+			dim : int = 1,
+			norm :	str = 'none',
+			cb_norm : str = 'none',
+			kmeans_init : bool = False,
+			code_vector_size : int = None,
 			):
 
 		super().__init__()
@@ -82,8 +70,8 @@ class _VQBaseLayer(nn.Module):
 		Quantizes the latent codes z with the codebook
 
 		Args:
-			codebook (Tensor): B x F
-			z (Tensor): B x ... x F
+			codebook (Tensor): B x C
+			z (Tensor): B x ... x C
 		"""
 		raise NotImplementedError
 
@@ -98,21 +86,17 @@ class _VQBaseLayer(nn.Module):
 		Converts data into canonical group format
 
 		The quantization dim is sent to the last dimension.
-		The features are then resized such that F -> G x F'
+		The features are then resized such that C -> G x C'
 
 		Args:
-			x (Tensor): a tensor in group form [B x F x ... ]
+			x (Tensor): a tensor in group form [B x C x ... ]
 			groups (int): number of groups
 		Returns:
-			x of shape [B x ... x G x F']
+			x of shape [B x ... x G x C']
 		"""
 
-		# B C H W -> B H W C
 		z = z.moveaxis(self.dim, -1).contiguous()
-
-		# B H W C -> B H W G F (where C -> G F)
 		z = z.unflatten(-1, (groups, -1))
-
 		return z
 
 
@@ -121,9 +105,9 @@ class _VQBaseLayer(nn.Module):
 		Merges group and permutes dimension back
 
 		Args:
-			x (Tensor): a tensor in group form [B x ... x G x F // G]
+			x (Tensor): a tensor in group form [B x ... x G x C // G]
 		Returns:
-			merged `x` of shape [B x ... x F] (assuming dim=1)
+			merged `x` of shape [B x ... x C] (assuming dim=1)
 		"""
 		return x.flatten(-2, -1).moveaxis(-1, self.dim)
 
@@ -133,7 +117,7 @@ class _VQBaseLayer(nn.Module):
 		Prepare input with normalization and group format
 
 		Args:
-			x (Tensor): a tensor in group form [B x F x ... ]
+			x (Tensor): a tensor in group form [B x C x ... ]
 			groups (int): number of groups
 		"""
 

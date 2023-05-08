@@ -8,38 +8,24 @@ from .vq import VectorQuant
 
 class ResidualVectorQuant(VectorQuant):
 	"""
-	Vector quantization layer.
-
 	Args
-		groups (int):
-			Number of residual VQ to apply. When num_residual=1, same as STVectorQuant
-			[default: 1]
-		share (bool):
-			If True, codebook is shared for every quantization.
-			[default: True]
-		*rest*: see STVectorQuant()
-	Input:
-		z (Tensor): tensor of atleast 3 dimensions
+		groups (int): Number of residual VQ to apply. When num_residual=1, 
+			layer acts will be equivalent to VectorQuant.
+		share (bool): If True, codebook is shared for every quantization.
+		*rest*: see VectorQuant()
 
-	Returns:
-		z_q (Tensor): quantized tensor with the same shape as z
-		q (Tensor): the code used in quantization.
-		loss (Torch scalar): commitment loss
-
-	@NOTE:
-		It is highly not recommended to use L2 normalization on the codebook.
+	NOTE: Don't use L2 normalization on the codebook. ResidualVQ is norm sensitive.
+		For norm invariant, consider using cosine distance variant.
 	"""
 
 	def __init__(
 			self,
-			feature_size,
-			num_codes,
-			groups=1,
-			share=True,
+			feature_size : int,
+			num_codes : int,
+			groups : int = 1,
+			share : bool = True,
 			**kwargs,
 			):
-
-		super().__init__(feature_size, num_codes, **kwargs)
 
 		if not share and not self.feature_size % groups == 0:
 			e_msg = f'feature_size {self.feature_size} must be divisible by num_residual {groups}.'
@@ -49,10 +35,13 @@ class ResidualVectorQuant(VectorQuant):
 		self.share = share
 
 		num_codebooks = 1 if share else groups
-		in_dim = self.num_codes // num_codebooks
-		out_dim = self.feature_size
+		in_dim  = self.group_size = num_codes // num_codebooks
+		out_dim = feature_size
 
-		self.group_size = in_dim
+		super().__init__(feature_size, num_codes, code_vector_size=out_dim, **kwargs)
+
+		self.groups = groups
+		self.share = share
 		self.codebook = nn.Embedding(in_dim * num_codebooks, out_dim)
 		return
 

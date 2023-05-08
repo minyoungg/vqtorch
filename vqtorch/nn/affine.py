@@ -10,24 +10,31 @@ import torch.nn.functional as F
 
 
 class AffineTransform(nn.Module):
-	def __init__(self, feature_size, use_running_statistics=False, momentum=0.1, affine_lr_scale=1):
+	def __init__(
+			self, 
+			feature_size, 
+			use_running_statistics=False, 
+			momentum=0.1, 
+			lr_scale=1,
+			num_groups=1,
+			):
 		super().__init__()
 
 		self.use_running_statistics = use_running_statistics
-		self.momentum = momentum
+		self.num_groups = num_groups
 
 		if use_running_statistics:
+			self.momentum = momentum
 			self.register_buffer('running_statistics_initialized', torch.zeros(1))
-			self.register_buffer('running_ze_mean', torch.zeros(1, feature_size))
-			self.register_buffer('running_ze_var', torch.ones(1, feature_size))
+			self.register_buffer('running_ze_mean', torch.zeros(num_groups, feature_size))
+			self.register_buffer('running_ze_var', torch.ones(num_groups, feature_size))
 
-			self.register_buffer('running_c_mean', torch.zeros(1, feature_size))
-			self.register_buffer('running_c_var', torch.ones(1, feature_size))
-
+			self.register_buffer('running_c_mean', torch.zeros(num_groups, feature_size))
+			self.register_buffer('running_c_var', torch.ones(num_groups, feature_size))
 		else:
-			self.scale = nn.parameter.Parameter(torch.zeros(1, feature_size))
-			self.bias = nn.parameter.Parameter(torch.zeros(1, feature_size))
-			self.affine_lr_scale = affine_lr_scale
+			self.scale = nn.parameter.Parameter(torch.zeros(num_groups, feature_size))
+			self.bias = nn.parameter.Parameter(torch.zeros(num_groups, feature_size))
+			self.lr_scale = lr_scale
 		return
 
 	@torch.no_grad()
@@ -68,11 +75,12 @@ class AffineTransform(nn.Module):
 		return
 
 
-	def forward(self, x):
-		""" inputs is always from the C/Q distribution """
+	def forward(self, codebook):
 		scale, bias = self.get_affine_params()
-		x = scale * x + bias
-		return x
+		n, c = codebook.shape
+		codebook = codebook.view(self.num_groups, -1, codebook.shape[-1])
+		codebook = scale * codebook + bias
+		return codebook.reshape(n, c)
 
 
 	def get_affine_params(self):
@@ -80,6 +88,6 @@ class AffineTransform(nn.Module):
 			scale = (self.running_ze_var / (self.running_c_var + 1e-8)).sqrt()
 			bias = - scale * self.running_c_mean + self.running_ze_mean
 		else:
-			scale = (1. + self.affine_lr_scale * self.scale)
-			bias = self.affine_lr_scale * self.bias
-		return scale, bias
+			scale = (1. + self.lr_scale * self.scale)
+			bias = self.lr_scale * self.bias
+		return scale.unsqueeze(1), bias.unsqueeze(1)
