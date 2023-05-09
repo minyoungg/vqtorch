@@ -86,7 +86,7 @@ If the features such as `affine parameterization`, `synchronized commitment loss
 ```bibtex
 @inproceedings{huh2023improvedvqste,
   title={Straightening Out the Straight-Through Estimator: Overcoming Optimization Challenges in Vector Quantized Networks},
-  author={Huh, Jacob and Cheung, Brian and Agrawal, Pulkit and Isola, Phillip},
+  author={Huh, Minyoung and Cheung, Brian and Agrawal, Pulkit and Isola, Phillip},
   booktitle={International Conference on Machine Learning},
   year={2023},
   organization={PMLR}
@@ -96,7 +96,7 @@ If the features such as `affine parameterization`, `synchronized commitment loss
 If you found the library useful please consider citing
 ```bibtex
 @misc{huh2023vqtorch,
-  author = {Huh, Jacob},
+  author = {Huh, Minyoung},
   title = {vqtorch: {P}y{T}orch Package for Vector Quantization},
   year = {2022},
   howpublished = {\url{https://github.com/minyoungg/vqtorch}},
