@@ -1,8 +1,7 @@
-# VQTorch 
-
+<img src="./assets/vqtorch-logo.png"  width="30%">
+---
 VQTorch is a PyTorch library for vector quantization. 
 
----
 The library was developed and used for.   
 - `[1] Straightening Out the Straight-Through Estimator: Overcoming Optimization Challenges in Vector Quantized Networks, Huh et al. ICML2023`
 
