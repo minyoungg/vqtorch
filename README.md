@@ -1,5 +1,7 @@
 <img src="./assets/vqtorch-logo.png"  width="30%">
----
+
+---   
+
 VQTorch is a PyTorch library for vector quantization. 
 
 The library was developed and used for.   
