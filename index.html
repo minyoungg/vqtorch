@@ -299,6 +299,9 @@ src: url("./fonts/Avenir_Book.ttf");
             modeling.
         </left>
     </p>
+
+    <p style="background: #fff3b0;"> <center style="background: #fff3b0;"> Simplify and improve your existing VQ model performance with our <a href="https://github.com/minyoungg/vqtorch"><b>VQTorch library</b></a> </center> </p>
+
     <br>
 
     <hr>
@@ -309,8 +312,8 @@ src: url("./fonts/Avenir_Book.ttf");
 
     <p>
       We observe that a primary cause of training instability is attributed to a shift in the embedding distribution.
-      As the embedding distribution P shifts, it misaligns with the codebook distribution C. The <b>misalignment occurs due to the sparse, delayed, and inaccurate straight-through-estimation</b> used to update the codebook.
-      The set of assigned code-vectors Q continuously shrinks as models are trained for longer, this phenomena is referred to as "index-collapse".
+      As the embedding distribution P shifts, it misaligns with the codebook distribution C. The <b>misalignment occurs due to the sparse, delayed, and inaccurate straight-through estimation </b> used to update the codebook.
+      The set of assigned code-vectors Q continuously shrinks as models are trained for longer. This phenomenon is referred to as "index collapse".
     </p>
     <br />
     <p><center>
@@ -320,8 +323,8 @@ src: url("./fonts/Avenir_Book.ttf");
     <br />
     <p>
       To reduce this divergence, we propose an <b>affine re-parameterization</b> of the code-vectors that can better match the moments of the embedding representation.
-      An affine re-parameterization with shared parameters ensures that the code-vectors that do not have an assignment still receives gradients.
-      The affine parameters can either be learned or computed using running statistics. This can be easily extended beyond single affine parameter to a group.
+      An affine re-parameterization with shared parameters ensures that the code-vectors that do not have an assignment still receive gradients.
+      The affine parameters can either be learned or computed using running statistics. This can be easily extended beyond a single affine parameter to a group.
     </p>
     <br />
     <p><center><img src="./assets/svg.svg" width="200px"></center></p>
@@ -335,23 +338,23 @@ src: url("./fonts/Avenir_Book.ttf");
 
     <p>
       The inaccuracy of the straight-through-estimator is proportional to the error in the commitment loss -- the divergence between P and Q.
-      In order to reduce the inaccurate estimation, we use coordinate descent style optimization approach which we first reduce the commitment loss before minimizing the task loss (alternated optimization).
+      In order to reduce the inaccurate estimation, we use a coordinate descent style optimization approach in which we first reduce the commitment loss before minimizing the task loss (alternated optimization).
     </p>
     <p>
-      Not only is the straight-through-estimation inaccuracte we find that the representation of the codebook is always delayed by a single iteration, resulting in slow down in convergence.
-      We remove the delay in the codebook representation by further updating the codebook towards the direction that minimizes task loss (synchronized commitment loss).
+      Not only is the straight-through estimation inaccurate we find that the representation of the codebook is always delayed by a single iteration, resulting in a slowdown in convergence.
+      We remove the delay in the codebook representation by further updating the codebook in the direction that minimizes task loss (synchronized commitment loss).
     </p>
     <p>
-      On a toy example below, we show how these changes affect the optimization trajectory.
+      A toy example below shows how these changes affect the optimization trajectory.
     </p>
     <br />
     <p><img class="rounded" src="./assets/opt_vis.png" width="800px"></p>
 
     <br />
     <p>
-      Combining our proposed methods, we above a consistent improvement in VQ-based generative modeling.
+      Combining our proposed methods above, we get a consistent improvement in various VQ-based tasks, including generative modeling and image classification.
       The figure below is generated using MaskGIT* framework for CelebA. OPT refers to both alternating optimization + synchronized commitment loss.
-      Refer to the main paper for additional results including image classification.
+      Refer to the main paper for additional results, including image classification.
     </p>
     <br />
 
@@ -372,7 +375,7 @@ src: url("./fonts/Avenir_Book.ttf");
       <font color="00509d">>>></font> <font color="1a936f">pip install</font> -e .
       </code></pre>
 
-    Integrate to your existing PyTorch code base
+    Integrate to your existing PyTorch code base.
     <pre><code>
         <font color="ef476f">import</font> torch
         <font color="ef476f">from</font> vqtorch.nn <font color="ef476f">import</font> VectorQuant
@@ -381,12 +384,12 @@ src: url("./fonts/Avenir_Book.ttf");
         vq_layer = <font color="118ab2">VectorQuant</font>(
                         <font color=#F39C12>feature_size</font>=32,    <font color=7F8C8D># feature dimension corresponding to the vectors</font>
                         <font color=#F39C12>num_codes=</font>1024,     <font color=7F8C8D># number of codebook vectors</font>
-                        <font color=#F39C12>beta</font>=0.98,          <font color=7F8C8D># (default: 0.9) commitment trade-off</font>
+                        <font color=#F39C12>beta</font>=0.98,          <font color=7F8C8D># (default: 0.95) commitment trade-off</font>
                         <font color=#F39C12>kmeans_init</font>=True,   <font color=7F8C8D># (default: False) whether to use kmeans++ init</font>
                         <font color=#F39C12>norm</font>=None,          <font color=7F8C8D># (default: None) normalization for input vector</font>
                         <font color=#F39C12>cb_norm</font>=None,       <font color=7F8C8D># (default: None) normalization for codebook vectors</font>
-                        <font color=#F39C12>affine_scale</font>=10.0,  <font color=7F8C8D># (default: 0.0) lr scale for affine parameters</font>
-                        <font color=#F39C12>sync_nu</font>=0.2,        <font color=7F8C8D># (default: 0.0) codebook syncronization contribution</font>
+                        <font color=#F39C12>affine_lr</font>=10.0,     <font color=7F8C8D># (default: 0.0) lr scale for affine parameters</font>
+                        <font color=#F39C12>sync_nu</font>=0.2,        <font color=7F8C8D># (default: 0.0) codebook synchronization contribution</font>
                         <font color=#F39C12>replace_freq</font>=20,    <font color=7F8C8D># (default: 0) frequency to replace dead codes</font>
                         <font color=#F39C12>dim</font>=-1              <font color=7F8C8D># (default: -1) dimension to be quantized</font>
                         ).cuda()
@@ -410,7 +413,7 @@ src: url("./fonts/Avenir_Book.ttf");
     <center>
         <h2> Acknowledgements </h2>
     </center>
-    <p> Minyoung Huh would like to thank his lab members for helpful feedbacks. 
+    <p> Minyoung Huh would like to thank his lab members for helpful feedbacks.
         <!-- Brian Cheung is funded by an MIT BCS Fellowship. -->
         <br><br>
 
