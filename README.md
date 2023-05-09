@@ -21,6 +21,8 @@ pip install -e .
 ```
 
 ## Example usage
+For examples using `VectorQuant` for classification and auto-encoders check out [here](./examples/).
+
 ```python
 import torch
 from vqtorch.nn import VectorQuant
