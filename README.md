@@ -1,3 +1,6 @@
+<br>
+<br>
+
 <img src="./assets/vqtorch-logo.png"  width="30%">
 
 ---   
