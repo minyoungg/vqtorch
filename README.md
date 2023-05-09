@@ -8,7 +8,7 @@
 VQTorch is a PyTorch library for vector quantization. 
 
 The library was developed and used for.   
-- `[1] Straightening Out the Straight-Through Estimator: Overcoming Optimization Challenges in Vector Quantized Networks, Huh et al. ICML2023`
+- <a href="https://minyoungg.github.io/vqtorch/">`[1] Straightening Out the Straight-Through Estimator: Overcoming Optimization Challenges in Vector Quantized Networks, Huh et al. ICML2023`</a>
 
 ## Installation
 Development was done on Ubuntu with Python 3.9/3.10 using NVIDIA GPUs. Some requirements may need to be adjusted in order to run.
@@ -78,3 +78,27 @@ vq_layer = VectorQuant(inplace_optimizer=inplace_optimizer)
 
 ## Planned features
 We aim to incorporate commonly used VQ methods, including probabilistic VQ variants. 
+
+
+## Citations
+If the features such as `affine parameterization`, `synchronized commitment loss` or `alternating optimization` was useful, please consider citing
+
+```bibtex
+@inproceedings{huh2023improvedvqste,
+  title={Straightening Out the Straight-Through Estimator: Overcoming Optimization Challenges in Vector Quantized Networks},
+  author={Huh, Jacob and Cheung, Brian and Agrawal, Pulkit and Isola, Phillip},
+  booktitle={International Conference on Machine Learning},
+  year={2023},
+  organization={PMLR}
+}
+```
+
+If you found the library useful please consider citing
+```bibtex
+@misc{huh2023vqtorch,
+  author = {Huh, Jacob},
+  title = {vqtorch: {P}y{T}orch Package for Vector Quantization},
+  year = {2022},
+  howpublished = {\url{https://github.com/minyoungg/vqtorch}},
+}
+```
