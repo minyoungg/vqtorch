@@ -121,8 +121,8 @@ class _VQBaseLayer(nn.Module):
 			groups (int): number of groups
 		"""
 
-		if len(z.shape) <= 2:
-			e_msg = f'expected a tensor of at least 3 dimensions but found {z.size()}'
+		if len(z.shape) <= 1:
+			e_msg = f'expected a tensor of at least 2 dimensions but found {z.size()}'
 			raise ValueError(e_msg)
 
 		if self.norm_before_grouping:
