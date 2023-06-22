@@ -17,7 +17,6 @@ setuptools.setup(
             "torch>=1.13.0",
             "string-color==1.2.3",
             "torchpq==0.3.0.1",
-            "cupy-cuda112",
     ],
     python_requires='>=3.6', # developed on 3.9 / 3.10
 )
