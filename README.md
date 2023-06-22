@@ -14,6 +14,16 @@ The library was developed and used for.
 Development was done on Ubuntu with Python 3.9/3.10 using NVIDIA GPUs. Some requirements may need to be adjusted in order to run.
 Some features, such as <b>half-precision cdist</b> and <b>cuda-based kmeans</b>, are only supported on CUDA devices.
 
+First install the correct version of [cupy](https://github.com/cupy/cupy/). Make sure to install the correct version. The version refers to `CUDA Version` number when using the command `nvidia-smi`. `cupy` seem to now support ROCm drivers but this has not been tested.
+```bash
+# recent 12.x cuda versions
+pip install cupy-cuda12x
+
+# 11.x versions (for even older see the repo above)
+pip install cup-cuda11x
+```
+
+Next, install `vqtorch`
 ```bash
 git clone https://github.com/minyoungg/vqtorch
 cd vqtorch
