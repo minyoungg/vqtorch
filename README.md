@@ -20,7 +20,7 @@ First install the correct version of [cupy](https://github.com/cupy/cupy/). Make
 pip install cupy-cuda12x
 
 # 11.x versions (for even older see the repo above)
-pip install cup-cuda11x
+pip install cupy-cuda11x
 ```
 
 Next, install `vqtorch`
