@@ -27,8 +27,8 @@ class ResidualVectorQuant(VectorQuant):
 			**kwargs,
 			):
 
-		if not share and not self.feature_size % groups == 0:
-			e_msg = f'feature_size {self.feature_size} must be divisible by num_residual {groups}.'
+		if not share and not feature_size % groups == 0:
+			e_msg = f'feature_size {feature_size} must be divisible by num_residual {groups}.'
 			raise RuntimeError(str(cs(e_msg, 'red')))
 
 		self.groups = groups
