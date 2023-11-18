@@ -35,7 +35,7 @@ class ResidualVectorQuant(VectorQuant):
 		self.share = share
 
 		num_codebooks = 1 if share else groups
-		in_dim  = self.group_size = num_codes // num_codebooks
+		in_dim = self.group_size = num_codes // num_codebooks
 		out_dim = feature_size
 
 		super().__init__(feature_size, num_codes, code_vector_size=out_dim, **kwargs)
@@ -43,6 +43,7 @@ class ResidualVectorQuant(VectorQuant):
 		self.groups = groups
 		self.share = share
 		self.codebook = nn.Embedding(in_dim * num_codebooks, out_dim)
+
 		return
 
 	
@@ -72,8 +73,8 @@ class ResidualVectorQuant(VectorQuant):
 		z_q = torch.zeros_like(z)
 		z_res = torch.zeros(*z.shape[:-2], self.groups + 1, z.shape[-1]).to(z.device)
 
-		d = torch.zeros(z_q.shape[:-1]).to(z_q.device)
-		q = torch.zeros(z_q.shape[:-1], dtype=torch.long).to(z_q.device)
+		d = torch.zeros(*z_q.shape[:-2], self.groups).to(z_q.device)
+		q = torch.zeros(*z_q.shape[:-2], self.groups, dtype=torch.long).to(z_q.device)
 
 		for i in range(self.groups):
 			# select group
