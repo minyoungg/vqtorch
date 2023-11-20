@@ -28,7 +28,7 @@ class ResidualVectorQuant(VectorQuant):
 			):
 
 		if not share and not feature_size % groups == 0:
-			e_msg = f'feature_size {feature_size} must be divisible by num_residual {groups}.'
+			e_msg = f'feature_size {feature_size} must be divisible by residual groups {groups}.'
 			raise RuntimeError(str(cs(e_msg, 'red')))
 
 		self.groups = groups
